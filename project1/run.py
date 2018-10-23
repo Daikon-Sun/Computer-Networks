@@ -1,7 +1,10 @@
-import socket
 from bs4 import BeautifulSoup
-import requests
 import random
+import requests
+import select
+import socket
+import sys
+import time
 
 
 class irc_client:
@@ -36,9 +39,10 @@ class irc_client:
         self.send('JOIN {}'.format(channelName))
         print('<irc_client> Join channel: {}'.format(channelName))
 
-    def priv_msg(self, channel, msg):
+    def priv_msg(self, channel, msg, show=True):
         self.send('PRIVMSG {} :{}'.format(channel, msg))
-        print('<irc_client> Sent message to {} :{}'.format(channel, msg))
+        if show:
+            print('<irc_client> Sent message to {} :{}'.format(channel, msg))
 
 
 user_name = 'Bot'
@@ -95,63 +99,90 @@ def get_song_url(song_name):
 
 mode = 0
 
-while(True):
-    text = irc.get()
-    print('~~~' + text + '~~~')
+while True:
 
-    if not irc.is_ping(text):
-        text = text[:-2]
-
-        if mode == 0:
-            if any(text.endswith(horoscope_command) for horoscope_command in horoscope_commands):
-                target, horoscope = text.split('PRIVMSG')[1].strip().split()
-                horoscope = horoscope[1:]
-                # print('reply the daily horoscope of {}'.format(horoscope))
-                reply = get_daily_horoscope(horoscope)
-                irc.priv_msg(target, reply)
-
-            elif song_command in text:
-                target, _, song_name = text.split('PRIVMSG')[1].strip().split(' ', 2)
-                # print('reply the song url of {}'.format(song_name))
-                reply = get_song_url(song_name)
-                irc.priv_msg(target, reply)
-
-            elif text.endswith(guess_command):
-                target, _ = text.split('PRIVMSG')[1].strip().split()
-                # print('start guessing')
-                reply = '猜一個 {}～{} 之間的數字！'.format(lower_bound, upper_bound)
-                irc.priv_msg(target, reply)
-                mode = 1
-                num = random.randint(lower_bound, upper_bound)
-                cur_low = lower_bound
-                cur_upp = upper_bound
-
-            elif text.endswith(guess_command):
-                other_user = text.split('!')[0]
-                target, _ = text.split('PRIVMSG')[1].strip().split()
-                print('start chatting with')
-                mode = 2
-
-        elif mode == 1:
-            content = text.split('PRIVMSG')[1].strip().split()[1:]
-            content = ' '.join(content)[1:]
-            if not content.isdigit():
-                continue
-            guess_num = int(content)
-            if guess_num > upper_bound or guess_num < lower_bound:
-                reply = '數字在 {}～{} 之間！'.format(lower_bound, upper_bound)
-            elif guess_num > cur_upp or guess_num < cur_low:
-                reply = '已知數字在 {}～{} 之間！'.format(cur_low, cur_upp)
-            elif guess_num < num:
-                reply = '大於 {}！'.format(guess_num)
-                cur_low = guess_num + 1
-            elif guess_num > num:
-                reply = '小於 {}！'.format(guess_num)
-                cur_upp = guess_num - 1
+    if mode == 2:
+        readies = select.select([sys.stdin, irc.socket], [], [], 0)[0]
+        for ready in readies:
+            if ready is sys.stdin:
+                reply = sys.stdin.readline()
+                irc.priv_msg(target, reply, show=False)
+                print('> ', end='', flush=True)
             else:
-                reply = '正確答案為 {}，恭喜答對！'.format(num)
-                mode = 0
-            irc.priv_msg(target, reply)
+                text = irc.get()
+                if not irc.is_ping(text):
+                    text = text[:-2]
+                    if text.endswith(bye_command):
+                        print('\b' * 100, end='', flush=True)
+                        reply = '=' * 7 + '{}已離開聊天室'.format(other_user) + '=' * 7
+                        print(reply, flush=True)
+                        irc.priv_msg(target, reply, show=False)
+                        mode = 0
+                    else:
+                        cur_other_user = text.split('!')[0][1:]
+                        if cur_other_user != other_user:
+                            continue
+                        content = text.split('PRIVMSG')[1].strip().split()[1:]
+                        print('\b\b', end='')
+                        print('{} : {}'.format(other_user, ' '.join(content)[1:]))
+                        print('> ', end='', flush=True)
 
 
+    else:
+        text = irc.get()
+        # print('~~~' + text + '~~~')
+
+        if not irc.is_ping(text):
+            text = text[:-2]
+
+            if mode == 0:
+                if any(text.endswith(horoscope_command) for horoscope_command in horoscope_commands):
+                    target, horoscope = text.split('PRIVMSG')[1].strip().split()
+                    horoscope = horoscope[1:]
+                    reply = get_daily_horoscope(horoscope)
+                    irc.priv_msg(target, reply)
+
+                elif song_command in text:
+                    target, _, song_name = text.split('PRIVMSG')[1].strip().split(' ', 2)
+                    reply = get_song_url(song_name)
+                    irc.priv_msg(target, reply)
+
+                elif text.endswith(guess_command):
+                    target, _ = text.split('PRIVMSG')[1].strip().split()
+                    reply = '猜一個 {}～{} 之間的數字！'.format(lower_bound, upper_bound)
+                    irc.priv_msg(target, reply)
+                    mode = 1
+                    num = random.randint(lower_bound, upper_bound)
+                    cur_low = lower_bound
+                    cur_upp = upper_bound
+
+                elif text.endswith(chat_command):
+                    other_user = text.split('!')[0][1:]
+                    target, _ = text.split('PRIVMSG')[1].strip().split()
+                    reply = '=' * 7 + '{}想跟你聯繫'.format(other_user) + '=' * 7
+                    print(reply)
+                    print('> ', end='', flush=True)
+                    irc.priv_msg(target, reply, show=False)
+                    mode = 2
+
+            elif mode == 1:
+                content = text.split('PRIVMSG')[1].strip().split()[1:]
+                content = ' '.join(content)[1:]
+                if not content.isdigit():
+                    continue
+                guess_num = int(content)
+                if guess_num > upper_bound or guess_num < lower_bound:
+                    reply = '數字在 {}～{} 之間！'.format(lower_bound, upper_bound)
+                elif guess_num > cur_upp or guess_num < cur_low:
+                    reply = '已知數字在 {}～{} 之間！'.format(cur_low, cur_upp)
+                elif guess_num < num:
+                    reply = '大於 {}！'.format(guess_num)
+                    cur_low = guess_num + 1
+                elif guess_num > num:
+                    reply = '小於 {}！'.format(guess_num)
+                    cur_upp = guess_num - 1
+                else:
+                    reply = '正確答案為 {}，恭喜答對！'.format(num)
+                    mode = 0
+                irc.priv_msg(target, reply)
 
