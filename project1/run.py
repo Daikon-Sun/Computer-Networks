@@ -16,6 +16,10 @@ class irc_client:
         self.socket.connect((host, port))
         print('<irc_client> Connected to {} :{}'.format(host, port))
 
+    def join(self, channel_name):
+        self.send('JOIN {}'.format(channel_name))
+        print('<irc_client> Join channel: {}'.format(channel_name))
+
     def send(self, msg):
         self.socket.send((msg+'\n').encode())
 
@@ -35,10 +39,6 @@ class irc_client:
         else:
             return False
 
-    def join(self, channelName):
-        self.send('JOIN {}'.format(channelName))
-        print('<irc_client> Join channel: {}'.format(channelName))
-
     def priv_msg(self, channel, msg, show=True):
         self.send('PRIVMSG {} :{}'.format(channel, msg))
         if show:
@@ -50,15 +50,14 @@ host_name = 'NTU'
 server_name = 'ntu.edu.tw'
 real_name = 'Fan-Keng Sun'
 nick_name = 'bot_b03901056'
-channel = '#CN_DEMO56'
-login_msg = 'Hello, I am {}, {}.'.format(user_name, nick_name)
+channel = '#CN_DEMO'
 lower_bound, upper_bound = 1, 10
 
 irc = irc_client()
 irc.connect('chat.freenode.net', 6667)
 irc.user(user_name, host_name, server_name, real_name, nick_name)
 irc.join(channel)
-irc.priv_msg(channel, login_msg)
+irc.priv_msg(channel, 'Hello, I am {}, {}.'.format(user_name, nick_name))
 
 
 command_prefix = 'PRIVMSG ' + channel + ' :'
