@@ -60,7 +60,7 @@ irc.join(channel)
 irc.priv_msg(channel, 'Hello, I am {}, {}.'.format(user_name, nick_name))
 
 
-command_prefix = 'PRIVMSG ' + channel + ' :'
+command_prefix = ' :'
 horoscopes = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra',
               'Scorpio', 'Sagittarius', 'Capricornus', 'Aquarius', 'Pisces']
 horoscope_commands = [command_prefix + horoscope for horoscope in horoscopes]
@@ -105,7 +105,7 @@ while True:
         for ready in readies:
             if ready is sys.stdin:
                 reply = sys.stdin.readline()
-                irc.priv_msg(target, reply, show=False)
+                irc.priv_msg(other_user, reply, show=False)
                 print('> ', end='', flush=True)
             else:
                 text = irc.get()
@@ -115,7 +115,7 @@ while True:
                         print('\b' * 100, end='', flush=True)
                         reply = '=' * 7 + '{}已離開聊天室'.format(other_user) + '=' * 7
                         print(reply, flush=True)
-                        irc.priv_msg(target, reply, show=False)
+                        irc.priv_msg(other_user, reply, show=False)
                         mode = 0
                     else:
                         cur_other_user = text.split('!')[0][1:]
@@ -129,27 +129,29 @@ while True:
 
     else:
         text = irc.get()
-        # print('~~~' + text + '~~~')
 
         if not irc.is_ping(text):
             text = text[:-2]
 
             if mode == 0:
                 if any(text.endswith(horoscope_command) for horoscope_command in horoscope_commands):
+                    other_user = text.split('!')[0][1:]
                     target, horoscope = text.split('PRIVMSG')[1].strip().split()
                     horoscope = horoscope[1:]
                     reply = get_daily_horoscope(horoscope)
-                    irc.priv_msg(target, reply)
+                    irc.priv_msg(other_user, reply)
 
                 elif song_command in text:
+                    other_user = text.split('!')[0][1:]
                     target, _, song_name = text.split('PRIVMSG')[1].strip().split(' ', 2)
                     reply = get_song_url(song_name)
-                    irc.priv_msg(target, reply)
+                    irc.priv_msg(other_user, reply)
 
                 elif text.endswith(guess_command):
+                    other_user = text.split('!')[0][1:]
                     target, _ = text.split('PRIVMSG')[1].strip().split()
                     reply = '猜一個 {}～{} 之間的數字！'.format(lower_bound, upper_bound)
-                    irc.priv_msg(target, reply)
+                    irc.priv_msg(other_user, reply)
                     mode = 1
                     num = random.randint(lower_bound, upper_bound)
                     cur_low = lower_bound
@@ -161,7 +163,7 @@ while True:
                     reply = '=' * 7 + '{}想跟你聯繫'.format(other_user) + '=' * 7
                     print(reply)
                     print('> ', end='', flush=True)
-                    irc.priv_msg(target, reply, show=False)
+                    irc.priv_msg(other_user, reply, show=False)
                     mode = 2
 
             elif mode == 1:
@@ -183,5 +185,5 @@ while True:
                 else:
                     reply = '正確答案為 {}，恭喜答對！'.format(num)
                     mode = 0
-                irc.priv_msg(target, reply)
+                irc.priv_msg(other_user, reply)
 
