@@ -1,7 +1,5 @@
 # Standard Libs
-import time
 import socket
-import select
 
 # Local Libs
 from utils import parse_args, send_to_agent, pack, receive_and_unpack
@@ -10,9 +8,7 @@ from utils import parse_args, send_to_agent, pack, receive_and_unpack
 args = parse_args()
 
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as receiverSocket:
-    # receiverSocket.setblocking(False)
     receiverSocket.bind((args.receiver_ip, args.receiver_port))
-    # print('receiver bind to {}, {}'.format(args.receiver_ip, args.receiver_port))
 
     expectedSeqNum = 1
     bufs = []

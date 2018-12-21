@@ -23,18 +23,22 @@ def unpack(packet):
     return length, seqNum, ackNum, fin, syn, ack, rawPacket
 
 
-def receive_and_unpack(socket, args):
+def receive_and_unpack(socket, args, sendOrg=False):
     packet, address = socket.recvfrom(args.packet_size << 1)
     length, seqNum, ackNum, fin, syn, ack, rawPacket = unpack(packet)
-    return length, seqNum, ackNum, fin, syn, ack, rawPacket, address
+    if sendOrg:
+        return length, seqNum, ackNum, fin, syn, ack, rawPacket, address, packet
+    else:
+        return length, seqNum, ackNum, fin, syn, ack, rawPacket, address
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='TCP by UDP')
     parser.add_argument('-ai', '--agent_ip', type=str, default='127.0.0.1')
     parser.add_argument('-ap', '--agent_port', type=int, default=8888)
-    parser.add_argument('-bs', '--buffer_size', type=int, default=32)
-    parser.add_argument('-if', '--input_file', type=str, default='data/numbers.txt')
+    parser.add_argument('-bs', '--buffer_size', type=int, default=320)
+    parser.add_argument('-if', '--input_file', type=str, default='data/music.mp4')
+    parser.add_argument('-lr', '--loss_rate', type=int, default=0.01)
     parser.add_argument('-of', '--output_file', type=str, default='./data/result')
     parser.add_argument('-ps', '--packet_size', type=int, default=1000)
     parser.add_argument('-ri', '--receiver_ip', type=str, default='127.0.0.1')

@@ -1,5 +1,4 @@
 # Standard Libs
-import time
 import socket
 
 # Local Libs
@@ -26,11 +25,9 @@ args = parse_args()
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as senderSocket:
     senderSocket.settimeout(args.time_out)
     senderSocket.bind((args.sender_ip, args.sender_port))
-    # print('sender bind to {}, {}'.format(args.sender_ip, args.sender_port))
 
     packets = load_packets(args.input_file, args.packet_size)
     sendStatus = [False for _ in range(len(packets))]
-    # print('number of packets = {}'.format(len(packets)))
 
     base = nxtSeqNum = 1
     windowLen = 1
