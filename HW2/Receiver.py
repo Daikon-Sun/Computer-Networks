@@ -12,7 +12,7 @@ args = parse_args()
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as receiverSocket:
     # receiverSocket.setblocking(False)
     receiverSocket.bind((args.receiver_ip, args.receiver_port))
-    print('receiver bind to {}, {}'.format(args.receiver_ip, args.receiver_port))
+    # print('receiver bind to {}, {}'.format(args.receiver_ip, args.receiver_port))
 
     expectedSeqNum = 1
     bufs = []
@@ -22,26 +22,28 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as receiverSocket:
         send_to_agent(receiverSocket, packet, args)
 
     with open(args.output_file, 'wb') as output_f:
-        while expectedSeqNum != -1:
+        while expectedSeqNum != 0:
             length, seqNum, ackNum, fin, syn, ack, rawPacket, agentAddress = \
                 receive_and_unpack(receiverSocket, args)
             if seqNum == -1:
-                print('recv   fin')
+                print('recv\tfin')
                 expectedSeqNum = 0
                 send_ack()
-                print('send   finack')
+                print('send\tfinack')
             elif seqNum == expectedSeqNum and len(bufs) < args.buffer_size:
-                print('recv   data   #{}'.format(expectedSeqNum))
+                print('recv\tdata\t#{}'.format(expectedSeqNum))
                 expectedSeqNum += 1
                 bufs.append(rawPacket)
                 send_ack()
-                print('send   ack    #{}'.format(expectedSeqNum))
+                print('send\tack\t#{}'.format(expectedSeqNum-1))
             else:
-                print('drop   data   #{}'.format(seqNum))
+                print('drop\tdata\t#{}'.format(seqNum))
                 send_ack()
-                print('send   ack    #{}'.format(expectedSeqNum-1))
+                print('send\tack\t#{}'.format(expectedSeqNum-1))
                 if len(bufs) == args.buffer_size:
                     print('flush')
                     output_f.write(b''.join(bufs))
                     bufs = []
-        output_f.write(b''.join(bufs))
+        if len(bufs) > 0:
+            print('flush')
+            output_f.write(b''.join(bufs))
