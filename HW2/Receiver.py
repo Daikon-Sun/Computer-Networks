@@ -14,14 +14,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as receiverSocket:
     bufs = []
 
     def send_ack():
-        packet = pack(0, 0, expectedSeqNum-1, expectedSeqNum==0, 0, 1, b'')
+        packet = pack(0, ackNum, expectedSeqNum-1, expectedSeqNum==0, 0, 1, b'')
         send_to_agent(receiverSocket, packet, args)
 
     with open(args.output_file, 'wb') as output_f:
         while expectedSeqNum != 0:
             length, seqNum, ackNum, fin, syn, ack, rawPacket, agentAddress = \
                 receive_and_unpack(receiverSocket, args)
-            if seqNum == -1:
+            if fin:
                 print('recv\tfin')
                 expectedSeqNum = 0
                 send_ack()

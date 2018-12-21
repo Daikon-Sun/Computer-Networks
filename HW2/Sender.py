@@ -12,9 +12,9 @@ def load_packets(filename, packet_size):
     while True:
         rawPacket = f.read(packet_size)
         if rawPacket:
-            packets.append(pack(len(rawPacket), seqNum, 0, 0, 0, 0, rawPacket))
+            packets.append(pack(len(rawPacket), seqNum, seqNum, 0, 0, 0, rawPacket))
         else:
-            packets.append(pack(0, -1, 0, 1, 0, 0, b''))
+            packets.append(pack(0, 0, 0, 1, 0, 0, b''))
             break
         seqNum += 1
     return packets
@@ -48,7 +48,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as senderSocket:
             try:
                 length, seqNum, ackNum, fin, syn, ack, rawPacket, agentAddress = \
                     receive_and_unpack(senderSocket, args)
-                if ackNum == -1:
+                if fin:
                     print('recv\tfinack')
                     base += 1
                 else:

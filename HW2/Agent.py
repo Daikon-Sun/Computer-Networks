@@ -12,7 +12,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as agentSocket:
     agentSocket.bind((args.agent_ip, args.agent_port))
 
 
-    def send_packet(isAck, packet):
+    def send_packet(isAck):
         if isAck:
             agentSocket.sendto(packet, (args.sender_ip, args.sender_port))
         else:
@@ -28,7 +28,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as agentSocket:
             packet_cnt += 1
             if fin == 1:
                 print('get\tfin')
-                send_packet(0, packet)
+                send_packet(0)
                 print('fwd\tfin')
             else:
                 if random.random() < args.loss_rate:
@@ -36,16 +36,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as agentSocket:
                     print('drop\tdata\t#{},\tloss rate = {:4f}'.format(seqNum, loss_cnt / packet_cnt))
                 else:
                     print('get\tdata\t#{}'.format(seqNum))
-                    send_packet(0, packet)
+                    send_packet(0)
                     print('fwd\tdata\t#{},\tloss rate = {:4f}'.format(seqNum, loss_cnt / packet_cnt))
 
         elif address[0] == args.receiver_ip and address[1] == args.receiver_port:
             if fin == 1:
                 print('get\tfinack')
-                send_packet(1, packet)
+                send_packet(1)
                 print('fwd\tfinack')
                 break
             else:
                 print('get\tack\t#{}'.format(ackNum))
-                send_packet(1, packet)
+                send_packet(1)
                 print('fwd\tack\t#{}'.format(ackNum))
