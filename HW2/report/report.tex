@@ -55,35 +55,35 @@ Default arguments are listed in ``parse\_args'' function in the file ``utils.py.
 \subsection{Program Flow}
 \begin{figure}[h]
  \centering
- \includegraphics[width=0.6\textwidth]{Sender.png}
+ \includegraphics[width=0.55\textwidth]{Sender.png}
  \caption{Flow of Sender.}
 \end{figure}
 
 \begin{figure}[h]
  \centering
- \includegraphics[width=0.5\textwidth]{Agent.png}
+ \includegraphics[width=0.47\textwidth]{Agent.png}
  \caption{Flow of Agent.}
 \end{figure}
 
 \begin{figure}[h]
  \centering
- \includegraphics[width=0.5\textwidth]{Receiver.png}
+ \includegraphics[width=0.52\textwidth]{Receiver.png}
  \caption{Flow of Receiver.}
 \end{figure}
 
 \newpage
-\section{Difficulties \& Solutions}
+\section{Difficulties and Solutions}
 \subsection{Communication between Python and C (i.e. TA's agent.c)}
 Integer in Python is not fix-sized.
 Saving a Python integer naively, such as using pickle, will result in variable-sized data.
-However, 32-bit integer is needed in the ``header'' struct in ``agent.c.''
+However, 32-bit integer is needed in the \texttt{header} struct in ``agent.c.''
 After searching for a solution, I came across \texttt{to\_bytes} and \texttt{from\_bytes} functions that are meant to encode Python integer into fix-sized data.
 Finally, after some trials and errors, I found that specifying \texttt{4}, \texttt{little-Endian} and \texttt{signed=True} in the functions' arguments solves the issue.
 
 \subsection{Loss rate and buffer size}
 After finishing ``Sender.py'' and ``Receiver.py'', I realize that my \texttt{winSize} never reaches 3.
 At first, I thought there may be some bugs.
-However, after reviewing my code, I cannot found any major bugs.
+However, after reviewing my code, I cannot found any major bug.
 Eventually, I found that the default value of loss rate is too high, and the default value of buffer size is too low.
 After setting new default values, the problem is solved.
 
