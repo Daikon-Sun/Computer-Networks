@@ -45,6 +45,8 @@ class irc_client:
             print('<irc_client> Sent message to {} :{}'.format(channel, msg))
 
 
+host = 'chat.freenode.net'
+port = 6667
 user_name = 'Bot'
 host_name = 'NTU'
 server_name = 'ntu.edu.tw'
@@ -54,7 +56,7 @@ channel = '#CN_DEMO'
 lower_bound, upper_bound = 1, 10
 
 irc = irc_client()
-irc.connect('chat.freenode.net', 6667)
+irc.connect(host, port)
 irc.user(user_name, host_name, server_name, real_name, nick_name)
 irc.join(channel)
 irc.priv_msg(channel, 'Hello, I am {}, {}.'.format(user_name, nick_name))
@@ -186,4 +188,3 @@ while True:
                     reply = '正確答案為 {}，恭喜答對！'.format(num)
                     mode = 0
                 irc.priv_msg(other_user, reply)
-
