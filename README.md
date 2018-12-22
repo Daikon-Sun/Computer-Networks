@@ -1,4 +1,4 @@
-# Assignments of Computer Networks
+# Assignments of Computer-Networks Course
 - Term: Fall 2018.
 - Lecturer: [Prof. Ai-Chun Pang](https://www.csie.ntu.edu.tw/~acpang/).
 - [Website](http://voip.csie.org/CN2018) (probably closed).
