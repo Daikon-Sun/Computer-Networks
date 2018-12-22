@@ -10,7 +10,7 @@ def parse_args():
     parser.add_argument('-bs', '--buffer_size', type=int, default=32)
     parser.add_argument('-if', '--input_file', type=str, default='data/numbers.txt')
     parser.add_argument('-lr', '--loss_rate', type=int, default=0.05)
-    parser.add_argument('-of', '--output_file', type=str, default='./data/result')
+    parser.add_argument('-of', '--output_file', type=str, default='data/result')
     parser.add_argument('-ps', '--packet_size', type=int, default=1000)
     parser.add_argument('-ri', '--receiver_ip', type=str, default='127.0.0.1')
     parser.add_argument('-rp', '--receiver_port', type=int, default=8889)
