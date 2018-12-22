@@ -6,10 +6,11 @@ congestion control that are provided in Transmission Control Protocol (TCP).
 `spec/CN2018_hw2_spec.pdf`
 
 ## File Descriptions
-- Sender.py: Establish a socket that is responsible for sending packets to `Agent.py`.
-- Agent.py: Establish a socket that will randomly drop packets from `Sender.py`.
-- Receiver.py: Establish a socket that will receive packets from `Agent.py`.
-- utils.py: Define some shared functions and arguments.
+- `Sender.py`: Establish a socket that is responsible for sending packets to `Agent.py` and receive acknowledgements from `Agent.py`.
+- `Agent.py`: Establish a socket that will randomly drop packets from `Sender.py` and forward other packets.
+- `Receiver.py`: Establish a socket that will receive packets from `Agent.py`
+  and send acknowledgements to `Agent.py`.
+- `utils.py`: Define some shared functions and arguments.
 
 ## Requirement
 - Python3
