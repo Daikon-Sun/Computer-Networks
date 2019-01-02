@@ -35,12 +35,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as senderSocket:
     while base < len(packets):
 
         while nxtSeqNum < base + windowLen and nxtSeqNum < len(packets):
-            packet = packets[nxtSeqNum]
-            send_to_agent(senderSocket, packet, args)
             if nxtSeqNum == len(packets) - 1:
+                if base != len(packets) - 1:
+                    break
                 print('send\tfin')
             else:
                 print('{}\tdata\t#{},\twinSize = {}'.format('resnd' if sendStatus[nxtSeqNum] else 'send', nxtSeqNum, windowLen))
+            packet = packets[nxtSeqNum]
+            send_to_agent(senderSocket, packet, args)
             sendStatus[nxtSeqNum] = True
             nxtSeqNum += 1
 

@@ -29,7 +29,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as receiverSocket:
             elif seqNum == expectedSeqNum and len(bufs) < args.buffer_size:
                 print('recv\tdata\t#{}'.format(expectedSeqNum))
                 expectedSeqNum += 1
-                bufs.append(rawPacket)
+                bufs.append(rawPacket[:length])
                 send_ack()
                 print('send\tack\t#{}'.format(expectedSeqNum-1))
             else:
