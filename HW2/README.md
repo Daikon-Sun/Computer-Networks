@@ -16,5 +16,5 @@ congestion control that are provided in Transmission Control Protocol (TCP).
 - Python3
 
 ## Usage
-Type `python3 Agent.py`, `python3 Receiver.py`, and python3 Sender.py` one by one and in the same order.  
+Type `python3 Agent.py`, `python3 Receiver.py`, and `python3 Sender.py` one by one and in the same order.  
 Default arguments are defined in the `parse_args` function in file `utils.py`.
